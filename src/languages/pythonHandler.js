@@ -11,7 +11,7 @@ class PythonHandler extends LanguageHandler {
 
     getExecutionCommand(filePath, dirPath) {
         return {
-            command: 'python',
+            command: 'python3',
             args: [`"${filePath}"`]
         };
     }
