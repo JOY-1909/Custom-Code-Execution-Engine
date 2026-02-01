@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const logger = require('./utils/logger');
 const routes = require('./api/routes');
+const { httpMetricsMiddleware, getMetrics, getContentType } = require('./utils/metrics');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -11,11 +13,27 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Metrics middleware (track all requests)
+app.use(httpMetricsMiddleware);
+
+// Rate limiting for API routes
+app.use('/api', apiLimiter);
+
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // API Routes
 app.use('/api', routes);
+
+// Prometheus Metrics Endpoint
+app.get('/metrics', async (req, res) => {
+    try {
+        res.set('Content-Type', getContentType());
+        res.end(await getMetrics());
+    } catch (err) {
+        res.status(500).end(err.message);
+    }
+});
 
 // Health Check
 app.get('/health', (req, res) => {

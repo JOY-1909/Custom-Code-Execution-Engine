@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-execution-engine
+  labels:
+    app: code-execution-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: code-execution-engine
+  template:
+    metadata:
+      labels:
+        app: code-execution-engine
+    spec:
+      containers:
+      - name: code-engine
+        image: code-execution-engine:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: USE_DOCKER
+          value: "false"  # Use direct execution in k8s, security via Pod isolation
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+      restartPolicy: Always

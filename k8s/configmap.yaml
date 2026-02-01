@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: code-execution-engine-config
+  labels:
+    app: code-execution-engine
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  TIMEOUT_MS: "5000"
+  MAX_CODE_SIZE: "102400"
+  USE_DOCKER: "false"
+  LOG_LEVEL: "info"

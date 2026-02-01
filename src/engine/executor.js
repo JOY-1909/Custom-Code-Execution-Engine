@@ -3,6 +3,7 @@ const fileManager = require('../utils/fileManager');
 const ComplexityAnalyzer = require('../utils/complexityAnalyzer');
 const DockerSandbox = require('./dockerSandbox');
 const logger = require('../utils/logger');
+const { recordExecution, incrementActiveExecutions, decrementActiveExecutions } = require('../utils/metrics');
 
 // Check if Docker is available at startup
 let dockerAvailable = false;
@@ -44,6 +45,8 @@ const Executor = {
         logger.info(`Complexity analysis: Time=${complexity.timeComplexity}, Space=${complexity.spaceComplexity}`);
 
         let tempFile = null;
+        const startTime = Date.now();
+        incrementActiveExecutions();
 
         try {
             // Create temp file
@@ -67,6 +70,7 @@ const Executor = {
                 result.executionMode = 'docker';
 
                 logger.info(`Docker execution completed with exit code: ${result.exitCode}`);
+                recordExecution(language, result.status, result.executionTime);
                 return result;
             }
 
@@ -95,6 +99,7 @@ const Executor = {
             result.complexity = complexity;
             result.executionMode = 'direct';
 
+            recordExecution(language, result.status, result.executionTime);
             return result;
 
         } catch (error) {
@@ -108,6 +113,7 @@ const Executor = {
                 complexity
             };
         } finally {
+            decrementActiveExecutions();
             // Cleanup
             if (tempFile) {
                 fileManager.cleanup(tempFile.dirPath);

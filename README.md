@@ -7,12 +7,16 @@ A production-grade, secure code execution engine that supports multiple programm
 ## Features
 
 - **Multi-Language Support**: Python, JavaScript (Node.js), Java, C++
-- **Secure Execution**: Timeout limits, file isolation, cleanup
+- **Secure Execution**: Timeout limits, file isolation, Docker containers
 - **Modern UI**: TakeUforward-style dark-themed code editor
 - **Auto Complexity Analysis**: Automatic Big-O detection
 - **RESTful API**: Clean JSON API for code execution
 - **CI/CD Ready**: GitHub Actions workflow included
 - **Docker Ready**: Production Dockerfile and docker-compose
+- **Kubernetes Ready**: Deployment, Service, HPA manifests
+- **Observability**: Prometheus metrics endpoint
+- **Rate Limiting**: API abuse prevention
+
 
 ## Quick Start
 
@@ -152,8 +156,46 @@ code-execution-engine/
 - **File Isolation**: Unique temp directories
 - **Cleanup**: Auto-delete temp files
 - **Size Limits**: 100KB max code
-- **Docker**: Container isolation ready
+- **Docker**: Container isolation with memory/CPU limits
+- **Rate Limiting**: 10 executions/minute per IP
+
+---
+
+## Kubernetes Deployment
+
+```bash
+# Apply all manifests
+kubectl apply -f k8s/
+
+# Check deployment
+kubectl get pods -l app=code-execution-engine
+```
+
+Includes:
+- **Deployment** with health probes and resource limits
+- **Service** with LoadBalancer
+- **HPA** for auto-scaling (2-10 replicas)
+- **ConfigMap** for configuration
+
+---
+
+## Observability
+
+### Prometheus Metrics
+
+```bash
+GET /metrics
+```
+
+Available metrics:
+- `http_request_duration_seconds` - HTTP latency histogram
+- `code_executions_total` - Execution count by language
+- `code_execution_duration_seconds` - Execution time histogram
+- `active_executions` - Currently running executions
+
+---
 
 ## License
 
 ISC
+

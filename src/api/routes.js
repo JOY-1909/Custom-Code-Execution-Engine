@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const executeController = require('../controllers/executeController');
 const Executor = require('../engine/executor');
+const { executionLimiter } = require('../middleware/rateLimiter');
 
-// POST /api/execute - Execute code
-router.post('/execute', executeController.execute);
+// POST /api/execute - Execute code (with stricter rate limit)
+router.post('/execute', executionLimiter, executeController.execute);
 
 // GET /api/languages - List supported languages
 router.get('/languages', executeController.getSupportedLanguages);
@@ -14,7 +15,11 @@ router.get('/status', (req, res) => {
     res.status(200).json({
         executionMode: Executor.getExecutionMode(),
         dockerAvailable: Executor.isDockerAvailable(),
-        supportedLanguages: ['python', 'javascript', 'java', 'cpp']
+        supportedLanguages: ['python', 'javascript', 'java', 'cpp'],
+        rateLimits: {
+            api: '30 requests/minute',
+            execution: '10 executions/minute'
+        }
     });
 });
 
@@ -29,5 +34,3 @@ router.get('/health', (req, res) => {
 });
 
 module.exports = router;
-
-
