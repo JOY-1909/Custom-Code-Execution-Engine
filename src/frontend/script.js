@@ -31,116 +31,33 @@ tabs.forEach(tab => {
     });
 });
 
-// Default code templates
+// Default code templates - simple Hello World
 const defaultCode = {
-    python: `# Two Sum - O(n) solution using HashMap
-def two_sum(nums, target):
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []
+    python: `# Write your Python code here
+print("Hello, World!")`,
 
-# Read input
-nums = list(map(int, input().split()))
-target = int(input())
+    javascript: `// Write your JavaScript code here
+console.log("Hello, World!");`,
 
-result = two_sum(nums, target)
-print(result)`,
-
-    javascript: `// Two Sum - O(n) solution using HashMap
-function twoSum(nums, target) {
-    const seen = new Map();
-    for (let i = 0; i < nums.length; i++) {
-        const complement = target - nums[i];
-        if (seen.has(complement)) {
-            return [seen.get(complement), i];
-        }
-        seen.set(nums[i], i);
-    }
-    return [];
-}
-
-const readline = require('readline');
-const rl = readline.createInterface({ input: process.stdin });
-let lines = [];
-rl.on('line', line => lines.push(line));
-rl.on('close', () => {
-    const nums = lines[0].split(' ').map(Number);
-    const target = parseInt(lines[1]);
-    console.log(twoSum(nums, target));
-});`,
-
-    java: `import java.util.*;
-
-public class Main {
-    // Two Sum - O(n) solution using HashMap
-    public static int[] twoSum(int[] nums, int target) {
-        Map<Integer, Integer> seen = new HashMap<>();
-        for (int i = 0; i < nums.length; i++) {
-            int complement = target - nums[i];
-            if (seen.containsKey(complement)) {
-                return new int[]{seen.get(complement), i};
-            }
-            seen.put(nums[i], i);
-        }
-        return new int[]{};
-    }
-    
+    java: `public class Main {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        String[] numsStr = sc.nextLine().split(" ");
-        int[] nums = new int[numsStr.length];
-        for (int i = 0; i < numsStr.length; i++) {
-            nums[i] = Integer.parseInt(numsStr[i]);
-        }
-        int target = sc.nextInt();
-        System.out.println(Arrays.toString(twoSum(nums, target)));
+        // Write your Java code here
+        System.out.println("Hello, World!");
     }
 }`,
 
-    cpp: `#include <bits/stdc++.h>
+    cpp: `#include <iostream>
 using namespace std;
 
-// Two Sum - O(n) solution using HashMap
-vector<int> twoSum(vector<int>& nums, int target) {
-    unordered_map<int, int> seen;
-    for (int i = 0; i < nums.size(); i++) {
-        int complement = target - nums[i];
-        if (seen.count(complement)) {
-            return {seen[complement], i};
-        }
-        seen[nums[i]] = i;
-    }
-    return {};
-}
-
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    
-    string line;
-    getline(cin, line);
-    stringstream ss(line);
-    vector<int> nums;
-    int x;
-    while (ss >> x) nums.push_back(x);
-    
-    int target;
-    cin >> target;
-    
-    vector<int> result = twoSum(nums, target);
-    cout << "[" << result[0] << ", " << result[1] << "]" << endl;
-    
+    // Write your C++ code here
+    cout << "Hello, World!" << endl;
     return 0;
 }`
 };
 
-// Default input for Two Sum
-const defaultInput = `2 7 11 15
-9`;
+// Default input (empty)
+const defaultInput = ``;
 
 // Initialize
 codeEditor.value = defaultCode[languageSelect.value];
