@@ -1,7 +1,21 @@
 const LanguageFactory = require('../languages');
 const fileManager = require('../utils/fileManager');
 const ComplexityAnalyzer = require('../utils/complexityAnalyzer');
+const DockerSandbox = require('./dockerSandbox');
 const logger = require('../utils/logger');
+
+// Check if Docker is available at startup
+let dockerAvailable = false;
+let useDocker = process.env.USE_DOCKER === 'true';
+
+(async () => {
+    dockerAvailable = await DockerSandbox.isAvailable();
+    logger.info(`Docker availability: ${dockerAvailable}`);
+    if (useDocker && !dockerAvailable) {
+        logger.warn('USE_DOCKER=true but Docker is not available. Falling back to direct execution.');
+        useDocker = false;
+    }
+})();
 
 const Executor = {
     /**
@@ -9,9 +23,10 @@ const Executor = {
      * @param {string} code - Source code to execute
      * @param {string} language - Language identifier
      * @param {string} input - Optional stdin input
+     * @param {object} options - Execution options
      * @returns {Promise<object>} - Execution result with complexity analysis
      */
-    async run(code, language, input = '') {
+    async run(code, language, input = '', options = {}) {
         const handler = LanguageFactory.getHandler(language);
 
         if (!handler) {
@@ -35,7 +50,27 @@ const Executor = {
             tempFile = fileManager.createTempFile(code, handler.getExtension());
             logger.info(`Created temp file: ${tempFile.filePath}`);
 
-            // Compile if needed
+            // Check if we should use Docker isolation
+            const shouldUseDocker = options.useDocker || (useDocker && dockerAvailable);
+
+            if (shouldUseDocker) {
+                // Execute in Docker container
+                logger.info(`Executing ${language} code in Docker container...`);
+                const sandbox = new DockerSandbox({
+                    memoryLimit: options.memoryLimit || '128m',
+                    cpuLimit: options.cpuLimit || '0.5',
+                    networkDisabled: options.networkDisabled !== false
+                });
+
+                const result = await sandbox.execute(language, tempFile.filePath, tempFile.dirPath, { input });
+                result.complexity = complexity;
+                result.executionMode = 'docker';
+
+                logger.info(`Docker execution completed with exit code: ${result.exitCode}`);
+                return result;
+            }
+
+            // Compile if needed (direct execution mode)
             const compileResult = await handler.compile(tempFile.filePath, tempFile.dirPath);
 
             if (!compileResult.success) {
@@ -46,7 +81,8 @@ const Executor = {
                     exitCode: 1,
                     executionTime: 0,
                     status: 'error',
-                    complexity
+                    complexity,
+                    executionMode: 'direct'
                 };
             }
 
@@ -57,6 +93,7 @@ const Executor = {
 
             // Add complexity to result
             result.complexity = complexity;
+            result.executionMode = 'direct';
 
             return result;
 
@@ -77,6 +114,20 @@ const Executor = {
                 logger.info(`Cleaned up: ${tempFile.dirPath}`);
             }
         }
+    },
+
+    /**
+     * Check if Docker mode is available
+     */
+    isDockerAvailable() {
+        return dockerAvailable;
+    },
+
+    /**
+     * Get execution mode
+     */
+    getExecutionMode() {
+        return useDocker && dockerAvailable ? 'docker' : 'direct';
     }
 };
 

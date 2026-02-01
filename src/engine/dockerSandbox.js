@@ -1,5 +1,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const config = require('../config');
 const logger = require('../utils/logger');
 
@@ -11,10 +12,10 @@ const DOCKER_IMAGES = {
 };
 
 const DOCKER_COMMANDS = {
-    python: (filePath) => ['python', filePath],
+    python: (filePath) => ['python3', filePath],
     javascript: (filePath) => ['node', filePath],
-    java: (filePath, className) => ['sh', '-c', `javac ${filePath} && java -cp /sandbox ${className}`],
-    cpp: (filePath) => ['sh', '-c', `g++ ${filePath} -o /sandbox/program && /sandbox/program`]
+    java: (filePath, className) => ['sh', '-c', `cp ${filePath} /tmp/ && javac /tmp/*.java && java -cp /tmp ${className}`],
+    cpp: (filePath) => ['sh', '-c', `cp ${filePath} /tmp/code.cpp && g++ /tmp/code.cpp -o /tmp/program && /tmp/program`]
 };
 
 class DockerSandbox {
@@ -30,7 +31,7 @@ class DockerSandbox {
      * @param {string} language - Language identifier
      * @param {string} codePath - Path to code file on host
      * @param {string} dirPath - Directory containing the code
-     * @param {object} options - Additional options
+     * @param {object} options - Additional options (input for stdin)
      * @returns {Promise<object>} - Execution result
      */
     async execute(language, codePath, dirPath, options = {}) {
@@ -53,13 +54,13 @@ class DockerSandbox {
         const dockerArgs = [
             'run',
             '--rm',                                    // Remove container after execution
-            `--memory=${this.memoryLimit}`,           // Memory limit
-            `--cpus=${this.cpuLimit}`,                // CPU limit
-            '--pids-limit=50',                        // Limit number of processes
-            '--read-only',                            // Read-only filesystem
-            '--tmpfs', '/sandbox:rw,size=64m',        // Writable temp space
-            '-v', `${codePath}:${containerCodePath}:ro`, // Mount code file read-only
-            '-w', '/sandbox'                          // Working directory
+            '-i',                                      // Interactive mode for stdin
+            `--memory=${this.memoryLimit}`,            // Memory limit
+            `--cpus=${this.cpuLimit}`,                 // CPU limit
+            '--pids-limit=50',                         // Limit number of processes
+            '--tmpfs', '/tmp:rw,size=64m',             // Writable temp space
+            '-v', `${dirPath}:/sandbox:ro`,            // Mount code directory read-only
+            '-w', '/sandbox'                           // Working directory
         ];
 
         // Disable network if configured
@@ -91,6 +92,14 @@ class DockerSandbox {
                 killed = true;
                 proc.kill('SIGKILL');
             }, this.timeout);
+
+            // Pipe stdin input if provided
+            if (options.input && proc.stdin) {
+                proc.stdin.write(options.input);
+                proc.stdin.end();
+            } else if (proc.stdin) {
+                proc.stdin.end();
+            }
 
             proc.stdout.on('data', (data) => {
                 stdout += data.toString();
@@ -148,6 +157,22 @@ class DockerSandbox {
     }
 
     /**
+     * Check if Docker images are built
+     */
+    static async areImagesBuilt() {
+        const images = Object.values(DOCKER_IMAGES);
+        for (const image of images) {
+            const exists = await new Promise((resolve) => {
+                const proc = spawn('docker', ['image', 'inspect', image]);
+                proc.on('close', (code) => resolve(code === 0));
+                proc.on('error', () => resolve(false));
+            });
+            if (!exists) return false;
+        }
+        return true;
+    }
+
+    /**
      * Build all Docker images for code execution
      */
     static async buildImages(dockerDir) {
@@ -159,19 +184,30 @@ class DockerSandbox {
         ];
 
         for (const build of builds) {
+            const dockerfilePath = path.join(dockerDir, build.file);
+            if (!fs.existsSync(dockerfilePath)) {
+                logger.warn(`Dockerfile not found: ${dockerfilePath}`);
+                continue;
+            }
+
             logger.info(`Building Docker image: ${build.name}`);
             await new Promise((resolve, reject) => {
                 const proc = spawn('docker', [
                     'build',
                     '-t', build.name,
-                    '-f', path.join(dockerDir, build.file),
+                    '-f', dockerfilePath,
                     dockerDir
                 ]);
 
-                proc.stderr.on('data', (data) => logger.info(data.toString()));
+                proc.stdout.on('data', (data) => process.stdout.write(data));
+                proc.stderr.on('data', (data) => process.stderr.write(data));
                 proc.on('close', (code) => {
-                    if (code === 0) resolve();
-                    else reject(new Error(`Failed to build ${build.name}`));
+                    if (code === 0) {
+                        logger.info(`Successfully built ${build.name}`);
+                        resolve();
+                    } else {
+                        reject(new Error(`Failed to build ${build.name}`));
+                    }
                 });
             });
         }
