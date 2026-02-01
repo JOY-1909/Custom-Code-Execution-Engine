@@ -17,6 +17,7 @@ spec:
       containers:
       - name: code-engine
         image: code-execution-engine:latest
+        imagePullPolicy: Never
         ports:
         - containerPort: 3000
         env:

@@ -1,201 +1,90 @@
-# Code Execution Engine
+# ⚡ Custom Code Execution Engine
 
-[![CI/CD](https://github.com/JOY-1909/Custom-Code-Execution-Engine/actions/workflows/ci.yml/badge.svg)](https://github.com/JOY-1909/Custom-Code-Execution-Engine/actions/workflows/ci.yml)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Node.js](https://img.shields.io/badge/Tech-Node.js-green.svg)
+![Docker](https://img.shields.io/badge/Tech-Docker-blue.svg)
+![Kubernetes](https://img.shields.io/badge/Tech-Kubernetes-blue.svg)
+![Monitoring](https://img.shields.io/badge/Monitoring-Grafana%20%2B%20Prometheus-orange.svg)
 
-A production-grade, secure code execution engine that supports multiple programming languages. Built from scratch without external execution APIs.
+## 👋 Hello! What is this?
+Imagine a website where you can type Python or Java code, click a "Run" button, and see the result instantly. That's what this project is! 
 
-## Features
-
-- **Multi-Language Support**: Python, JavaScript (Node.js), Java, C++
-- **Secure Execution**: Timeout limits, file isolation, Docker containers
-- **Modern UI**: TakeUforward-style dark-themed code editor
-- **Auto Complexity Analysis**: Automatic Big-O detection
-- **RESTful API**: Clean JSON API for code execution
-- **CI/CD Ready**: GitHub Actions workflow included
-- **Docker Ready**: Production Dockerfile and docker-compose
-- **Kubernetes Ready**: Deployment, Service, HPA manifests
-- **Observability**: Prometheus metrics endpoint
-- **Rate Limiting**: API abuse prevention
-
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js (v18+)
-- Python 3
-- Java JDK (javac, java)
-- G++ compiler
-- (Optional) Docker for containerized deployment
-
-### Installation
-
-```bash
-cd code-execution-engine
-npm install
-npm start
-```
-
-Open `http://localhost:3000` in your browser.
+It's like having a coding playground (like LeetCode or Replit) running on your own computer.
 
 ---
 
-## Docker Deployment
+## 🚦 Step-by-Step Guide (How to Run It)
 
-### Using Docker Compose (Recommended)
+Follow these exact steps to get it running in 5 minutes.
+
+### Step 1: Install the Tools 🛠️
+Before you start, you need two things installed on your computer. If you don't have them, download and install them now:
+
+1.  **Docker Desktop** (Required)
+    *   Download here: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
+    *   *Install it and make sure it is running (you should see a little whale icon).*
+2.  **Node.js** (Required)
+    *   Download here: [https://nodejs.org/](https://nodejs.org/)
+    *   *Just download the "LTS" version and click Next -> Next -> Finish.*
+
+### Step 2: Open the Project 📂
+1.  Open your **Terminal** (Command Prompt or PowerShell).
+2.  Check if you are in the project folder `code-execution-engine`.
+
+### Step 3: Start the Engine (The Magic Command) ✨
+Copy and paste this *entire* command into your terminal and hit **Enter**:
 
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.monitoring.yml up -d --build
 ```
 
-### Using Dockerfile
+*Wait for about 1-2 minutes while it downloads everything. It will verify that "Containers" are "Started".*
 
-```bash
-docker build -t code-execution-engine .
-docker run -p 3000:3000 code-execution-engine
-```
+### Step 4: Open in Your Browser 🌐
+Once the command finishes, open these links in Chrome or Edge:
+
+*   **👉 The Code Editor (Your App):** [http://localhost:3000](http://localhost:3000)
+    *   *Go here to write and run code!*
+*   **📊 The Monitoring Dashboard:** [http://localhost:3001](http://localhost:3001)
+    *   *Username: `admin`*
+    *   *Password: `admin`*
+    *   *Go here to see cool graphs of your server running.*
 
 ---
 
-## CI/CD Pipeline
+## 🛑 How to Stop It
+When you are done, don't just close the terminal! You should stop the engine properly to save battery and memory.
 
-This project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+1.  Go back to your terminal.
+2.  Run this "Stop" command:
 
-1. **Tests** on Node.js 18.x and 20.x
-2. **Sets up** Python, Java, and G++
-3. **Runs** automated tests
-4. **Builds** Docker images for all languages
-5. **Scans** for security vulnerabilities
+```bash
+docker-compose -f docker-compose.monitoring.yml down
+```
 
-### To Enable CI/CD:
-
-1. Push to GitHub:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit - Code Execution Engine"
-   git remote add origin https://github.com/YOUR_USERNAME/code-execution-engine.git
-   git push -u origin main
-   ```
-
-2. GitHub Actions will automatically run on each push.
+That's it! Everything is clean now. 🧹
 
 ---
 
-## API Usage
+## 🤓 For Experts Only (Technical details)
 
-### Execute Code
+If you are a developer or recruiter, here is the technical summary:
 
+*   **Architecture**: Node.js API with Docker-based sandboxing.
+*   **Security**: Code runs in isolated containers with CPU/RAM limits and no network.
+*   **Scalability**: Stateless architecture, ready for Kubernetes (manifests in `/k8s` folder).
+*   **Observability**: Prometheus metrics scraping with Grafana visualization.
+
+**Kubernetes Deployment:**
 ```bash
-POST /api/execute
-Content-Type: application/json
-
-{
-  "language": "python",
-  "code": "print('Hello, World!')",
-  "input": ""
-}
-```
-
-### Response
-
-```json
-{
-  "stdout": "Hello, World!\n",
-  "stderr": "",
-  "exitCode": 0,
-  "executionTime": 45,
-  "status": "success",
-  "complexity": {
-    "timeComplexity": "O(1)",
-    "spaceComplexity": "O(1)"
-  }
-}
-```
-
-### Health Check
-
-```bash
-GET /health
-```
-
----
-
-## Project Structure
-
-```
-code-execution-engine/
-├── .github/workflows/ci.yml  # CI/CD Pipeline
-├── src/
-│   ├── engine/executor.js    # Execution orchestrator
-│   ├── languages/            # Language handlers
-│   ├── utils/                # Utilities
-│   └── frontend/             # Web UI
-├── docker/                   # Language-specific Dockerfiles
-├── Dockerfile                # Production image
-├── docker-compose.yml
-└── Documentation:
-    ├── ARCHITECTURE.md
-    ├── EXECUTION_FLOW.md
-    ├── SECURITY.md
-    └── SCALABILITY.md
-```
-
-## Supported Languages
-
-| Language   | Compiler/Runtime | Complexity |
-|------------|------------------|------------|
-| Python     | python3          | O(1)-O(n³) |
-| JavaScript | node             | O(1)-O(n³) |
-| Java       | javac + java     | O(1)-O(n³) |
-| C++        | g++              | O(1)-O(n³) |
-
-## Security
-
-- **Timeout**: 5 second execution limit
-- **File Isolation**: Unique temp directories
-- **Cleanup**: Auto-delete temp files
-- **Size Limits**: 100KB max code
-- **Docker**: Container isolation with memory/CPU limits
-- **Rate Limiting**: 10 executions/minute per IP
-
----
-
-## Kubernetes Deployment
-
-```bash
-# Apply all manifests
 kubectl apply -f k8s/
-
-# Check deployment
-kubectl get pods -l app=code-execution-engine
+# To stop: kubectl delete -f k8s/
 ```
 
-Includes:
-- **Deployment** with health probes and resource limits
-- **Service** with LoadBalancer
-- **HPA** for auto-scaling (2-10 replicas)
-- **ConfigMap** for configuration
+**API Usage:**
+`POST /api/execute` with `{ "language": "python", "code": "print('hi')" }`.
 
 ---
 
-## Observability
-
-### Prometheus Metrics
-
-```bash
-GET /metrics
-```
-
-Available metrics:
-- `http_request_duration_seconds` - HTTP latency histogram
-- `code_executions_total` - Execution count by language
-- `code_execution_duration_seconds` - Execution time histogram
-- `active_executions` - Currently running executions
-
----
-
-## License
-
-ISC
-
+### Author
+Built for **IntelQI Internship Project**
