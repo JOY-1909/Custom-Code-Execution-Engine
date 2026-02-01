@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Execution Engine</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">CodeRunner</span>
+            </div>
+            <div class="controls">
+                <select id="language-select">
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                    <option value="python" selected>Python</option>
+                    <option value="javascript">JavaScript</option>
+                </select>
+                <button id="run-btn" class="run-btn">
+                    <span class="btn-icon">▶</span>
+                    Run
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Code Editor Panel -->
+            <section class="code-panel">
+                <div class="panel-header">
+                    <span class="panel-title">Code</span>
+                    <span class="shortcut">Ctrl+Enter to run</span>
+                </div>
+                <textarea id="code-editor" spellcheck="false" placeholder="Write your code here..."></textarea>
+            </section>
+
+            <!-- Right Side: Input/Output/Metrics -->
+            <section class="io-panel">
+                <!-- Tabs for Input/Output -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="input">Input</button>
+                    <button class="tab" data-tab="output">Output</button>
+                </div>
+
+                <!-- Input Section -->
+                <div id="input-section" class="tab-content active">
+                    <textarea id="input-box" spellcheck="false"
+                        placeholder="Enter your input here...&#10;Example:&#10;5&#10;1 2 3 4 5"></textarea>
+                </div>
+
+                <!-- Output Section -->
+                <div id="output-section" class="tab-content">
+                    <div id="output-console">
+                        <span class="output-placeholder">Run your code to see output</span>
+                    </div>
+                </div>
+
+                <!-- Complexity & Metrics Panel -->
+                <div class="metrics-panel">
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-icon time-icon">⏱</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Runtime</span>
+                                <span id="exec-time" class="metric-value">-- ms</span>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon memory-icon">📊</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Memory</span>
+                                <span id="memory-usage" class="metric-value">-- MB</span>
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-icon status-icon">●</div>
+                            <div class="metric-info">
+                                <span class="metric-label">Status</span>
+                                <span id="status-text" class="metric-value status-pending">Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto Complexity Analysis -->
+                    <div class="complexity-section">
+                        <h4 class="complexity-title">
+                            <span class="auto-badge">AUTO</span>
+                            Complexity Analysis
+                        </h4>
+                        <div class="complexity-grid">
+                            <div class="complexity-box">
+                                <span class="complexity-label">Time Complexity</span>
+                                <div class="complexity-result">
+                                    <span id="time-complexity" class="complexity-value">--</span>
+                                    <span id="time-explanation" class="complexity-hint"></span>
+                                </div>
+                            </div>
+                            <div class="complexity-box">
+                                <span class="complexity-label">Space Complexity</span>
+                                <div class="complexity-result">
+                                    <span id="space-complexity" class="complexity-value">--</span>
+                                    <span id="space-explanation" class="complexity-hint"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
