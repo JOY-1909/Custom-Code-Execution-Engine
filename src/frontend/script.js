@@ -1,6 +1,5 @@
 const API_URL = '/api/execute';
 
-// DOM Elements
 const codeEditor = document.getElementById('code-editor');
 const inputBox = document.getElementById('input-box');
 const languageSelect = document.getElementById('language-select');

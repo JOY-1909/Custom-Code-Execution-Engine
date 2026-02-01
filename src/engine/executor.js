@@ -5,7 +5,7 @@ const DockerSandbox = require('./dockerSandbox');
 const logger = require('../utils/logger');
 const { recordExecution, incrementActiveExecutions, decrementActiveExecutions } = require('../utils/metrics');
 
-// Check if Docker is available at startup
+// Initialize Docker availability check
 let dockerAvailable = false;
 let useDocker = process.env.USE_DOCKER === 'true';
 
@@ -49,7 +49,6 @@ const Executor = {
         incrementActiveExecutions();
 
         try {
-            // Create temp file
             tempFile = fileManager.createTempFile(code, handler.getExtension());
             logger.info(`Created temp file: ${tempFile.filePath}`);
 
@@ -57,7 +56,6 @@ const Executor = {
             const shouldUseDocker = options.useDocker || (useDocker && dockerAvailable);
 
             if (shouldUseDocker) {
-                // Execute in Docker container
                 logger.info(`Executing ${language} code in Docker container...`);
                 const sandbox = new DockerSandbox({
                     memoryLimit: options.memoryLimit || '128m',

@@ -87,4 +87,4 @@ kubectl apply -f k8s/
 ---
 
 ### Author
-Built for **IntelQI Internship Project**
+Built by **Joy Banerjee**
