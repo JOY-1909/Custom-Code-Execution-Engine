@@ -15,10 +15,13 @@ class CppHandler extends LanguageHandler {
      * Find g++ compiler
      */
     findCompiler() {
-        // Try to find g++ using 'where' command
+        // Try to find g++ using 'which' (Linux/Mac) or 'where' (Windows)
+        const isWindows = process.platform === 'win32';
+        const findCommand = isWindows ? 'where g++' : 'which g++';
+
         try {
-            const result = execSync('where g++', { encoding: 'utf8', timeout: 5000 });
-            const paths = result.trim().split('\r\n');
+            const result = execSync(findCommand, { encoding: 'utf8', timeout: 5000 });
+            const paths = result.trim().split(isWindows ? '\r\n' : '\n');
             if (paths.length > 0 && paths[0]) {
                 return paths[0].trim();
             }

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 const config = require('../config');
 
 const fileManager = {
@@ -11,7 +11,7 @@ const fileManager = {
      * @returns {object} - { id, filePath, dirPath }
      */
     createTempFile(code, extension) {
-        const id = uuidv4();
+        const id = randomUUID();
         const dirPath = path.join(config.TEMP_DIR, id);
 
         // Create directory for this execution
