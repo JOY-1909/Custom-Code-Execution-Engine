@@ -1,6 +1,6 @@
 # Code Execution Engine
 
-[![CI/CD](https://github.com/YOUR_USERNAME/code-execution-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/code-execution-engine/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/JOY-1909/Custom-Code-Execution-Engine/actions/workflows/ci.yml/badge.svg)](https://github.com/JOY-1909/Custom-Code-Execution-Engine/actions/workflows/ci.yml)
 
 A production-grade, secure code execution engine that supports multiple programming languages. Built from scratch without external execution APIs.
 
